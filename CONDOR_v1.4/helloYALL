@@ -1,8 +1,14 @@
 **not sure if this is order but for linux these are commands I used to add new file
+git pull   = updates all files and checks for new commits
 
-git add helloYALL 
+git add helloYALL   = adds file to repo but doesn't commit
 
-git commit -m "test" helloYALL 
+git commit -m "test" helloYALL  = commits change to  repo
 
-git push origin master
+git push origin master   = pushes changes to repo
+
+
+
+** command i'm running for running RC heli
+python CONDOR.py Config/RCHELI_Master_Input.cfg 
 
