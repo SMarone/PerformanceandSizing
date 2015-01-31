@@ -1,0 +1,8 @@
+**not sure if this is order but for linux these are commands I used to add new file
+
+git add helloYALL 
+
+git commit -m "test" helloYALL 
+
+git push origin master
+
