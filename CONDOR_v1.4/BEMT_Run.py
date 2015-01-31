@@ -22,7 +22,7 @@ def run_BEMT(Master):
     startTime = clock()
     if runTests:
         fails = []
-        for GW in [5000., 50000., 80000.]:
+        for GW in [5., 35., 95.]:#for GW in [5000., 50000., 80000.]:
             for V in [0., 300.]:
                 for horizM in [1., 10.]:
                     for vertM in [1.,  10.]:
@@ -145,7 +145,7 @@ def run_BEMT(Master):
             plt.title('t1s')
 
             plt.subplot(248)
-            plt.plot(rotor.miscB_hist[5:])
+            plt.plot(rotor.miscB_hist[5:])2
             plt.title('advancingLiftProportion')
 
             plt.show()
@@ -163,7 +163,7 @@ def pdeg(locals_, vars_):
     s = ['%s: %.2f' % (var*180./math.pi, locals_[var]) for var in vars_]
     print '     '.join(s)
 def density(altitude, DeltaTemp):
-    ISA = np.genfromtxt("Config\Standard_Atmosphere\ISA_Standard_Atmosphere.txt", skip_header=2, skip_footer = 0)
+    ISA = np.genfromtxt("Config/Standard_Atmosphere/ISA_Standard_Atmosphere.txt", skip_header=2, skip_footer = 0)
     alt = ISA[:,0]
     temp = ISA[:,1]
     Pres = ISA[:,3]
