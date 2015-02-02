@@ -128,6 +128,7 @@ class Vehicle:
         v['Weights']['EmptyWeightFraction'] = (scaledEngineWeight + scaledDriveSystemWeight + scaledStructureWeight) / self.GW - 0.11
         v['Weights']['EmptyWeight'] = v['Weights']['EmptyWeightFraction'] * self.GW
         v['Weights']['MaxAvailableFuelWeight'] = self.GW - v['Weights']['EmptyWeight'] - v['Weights']['UsefulLoad']
+        print 'gross weight %f, empty is %s, and useful %s, MaxAvailableFuelWeight is %s' %(self.GW, v['Weights']['EmptyWeight'],v['Weights']['UsefulLoad'], v['Weights']['MaxAvailableFuelWeight'])
       else:
         v['Weights']['scaledEngineWeight'] = scaledEngineWeight
         v['Weights']['scaledDriveSystemWeight'] = scaledDriveSystemWeight
@@ -137,7 +138,7 @@ class Vehicle:
         v['Weights']['EmptyWeightFraction'] = w['baselineEmptyWeightFraction']
         v['Weights']['EmptyWeight'] = baselineEmptyWeight
         v['Weights']['MaxAvailableFuelWeight'] = self.GW - v['Weights']['EmptyWeight'] - v['Weights']['UsefulLoad']
-
+	print 'gross weight %f, empty is %s, and useful %s, MaxAvailableFuelWeight is %s' %(self.GW, v['Weights']['EmptyWeight'],v['Weights']['UsefulLoad'], v['Weights']['MaxAvailableFuelWeight'])
   def setMission(self, mconfig):
       """This function sets the mission fleshing it out with some calculated values"""
       self.mconfig = mconfig
@@ -189,6 +190,7 @@ class Vehicle:
           return
       elapsed = 0 # elapsed time since mission start
       fuelAvailable = self.GW - v['Weights']['EmptyWeight'] - v['Weights']['UsefulLoad'] # total fuel weight available, pounds
+      print 'fuel avail is %f' % fuelAvailable
       w = v['Weights']['EmptyWeight'] + fuelAvailable
       totalFuel = 0.
       totalRange = 0.0
@@ -289,6 +291,8 @@ class Vehicle:
                       print "steve power failure 2\n"
                       return
                   fuel = self.SFC(power/v['Weights']['NumEngines']) * power * (duration/60)
+                  print 'power is %f' % power
+                  print 'fuel is %f' %fuel
                   w -= fuel
                   totalFuel += fuel
                   elapsed += duration
@@ -385,7 +389,7 @@ class Vehicle:
       alpha_tpp.append(TrimData[5])
       TotThrust.append(TotalThrust)
       # Do the altitude sweep
-      while ((not math.isnan(powersSL[-1])) and (not powersSL[-1]<0)) and speeds[-1]<200:
+      while ((not math.isnan(powersSL[-1])) and (not powersSL[-1]<0)) and speeds[-1]<100:  #change STEVE
           
           speed = speeds[-1] + v['Simulation']['PowerCurveResolution']
           v['Condition']['Speed'] = speed
@@ -643,6 +647,7 @@ class Vehicle:
       Pparasite = TotalDrag*V/550.0
       alpha_tpp = math.atan(ForwardThrust_perRotor/VerticalLift_perRotor)
       TrimData.append(alpha_tpp*180/math.pi)
+      print 'Total power: %f ,   Pind:%f  , Pprof:%f , Ppara:%f, Thrust:%f' % (totalPower,Pinduced,Pprofile,Pparasite,TotalThrust)
       return (totalPower, Pinduced, Pprofile, Pparasite, TotalThrust, TrimData)
       
   def findAntiTorquePower(self,Tpower,density,Vinf):

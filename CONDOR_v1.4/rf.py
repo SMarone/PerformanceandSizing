@@ -70,6 +70,7 @@ class SizedVehicle:
             if not choppah.vconfig['Sizing Results']['CouldTrim']:
                 stopReason = 'Cound not trim at all conditions at any mission-capable weight'
             elif choppah.vconfig['Weights']['MaxAvailableFuelWeight'] < 0:
+	       # print 'max avail fuel weight is %s' % (v['Weights']['MaxAvailableFuelWeight'])
                 stopReason = 'Negative calculated max fuel weight'
             elif steps >= choppah.vconfig['Simulation']['MaxSteps']:
                 stopReason = 'MaxSteps reached before convergance.  Stopped with bounds: %f  to  %f' % (GWmin, GWmax)
