@@ -120,7 +120,7 @@ def run_vehicle(Master):
         
 
 
-    MCPspeeds = [0, 30]  # STEVE Change
+    MCPspeeds = [0, 30]  # STEVE Change AHS
     MCP = [vehicle.powerAvailable(v['Simulation']['Curve_Altitude']), vehicle.powerAvailable(v['Simulation']['Curve_Altitude'])]
     MRP = [vehicle.MRPAvailable(v['Simulation']['Curve_Altitude']),vehicle.MRPAvailable(v['Simulation']['Curve_Altitude'])]
     plt.figure(1)

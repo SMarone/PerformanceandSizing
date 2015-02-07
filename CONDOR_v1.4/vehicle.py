@@ -46,9 +46,12 @@ class Vehicle:
 
       if self.Master['Code Selection']['rf_Run']:
         v['Body']['FlatPlateDrag'] = 0.15 * GW**.5 * (1-v['Body']['DragTechImprovementFactor']) #0.015 * GW**0.67 # flat plate drag area
+        # Thing to CHANGE FOR AHS
       else:
         v['Body']['FlatPlateDrag'] = v['Body']['BaselineFlatPlate']
+        #AHS CHANGE?
       
+      #AHS -> are these equations okay? will they change for multi-rotor?
       v['Main Rotor']['Radius'] = math.sqrt(GW / (math.pi * v['Main Rotor']['DiskLoading'] * v['Main Rotor']['NumRotors']))
       v['Main Rotor']['Omega'] = v['Main Rotor']['TipSpeed'] / v['Main Rotor']['Radius']
       v['Main Rotor']['DiskArea'] = math.pi * v['Main Rotor']['Radius']**2 * v['Main Rotor']['NumRotors']
@@ -64,11 +67,13 @@ class Vehicle:
       
       self.blade = Blade(airfoildata=self.airfoildata_mainRotor, Master = self.Master,skip_header=0, skip_footer=0, averageChord=v['Main Rotor']['AverageChord']/v['Main Rotor']['Radius'], taperRatio=v['Main Rotor']['TaperRatio'], tipTwist=v['Main Rotor']['TipTwist'], rootCutout=v['Main Rotor']['RootCutout'], segments=v['Simulation']['numBladeElementSegments'], dragDivergenceMachNumber=v['Main Rotor']['DragDivergenceMachNumber'])
       self.rotor = Rotor(self.blade, psiSegments=v['Simulation']['numBladeElementSegments'], Vtip=v['Main Rotor']['TipSpeed'], radius=v['Main Rotor']['Radius'], numblades=v['Main Rotor']['NumBlades'],Master = self.Master)
+    
+      # get rid of antitorque  AHS
       self.sizeAntiTorque()      
       if self.Master['Code Selection']['rf_Run']: # When using RF method scales engine
         self.scaleEngine()
       else: # When calculating performance of vehicle uses input values
-        v['Powerplant']['MRP'] = v['Powerplant']['BaselineMRP']*v['Weights']['NumEngines']
+        v['Powerplant']['MRP'] = v['Powerplant']['BaselineMRP']*v['Weights']['NumEngines']  #check Weights AHS
         v['Powerplant']['MCP'] = v['Powerplant']['BaselineMCP']*v['Weights']['NumEngines']
         v['Powerplant']['SFC'] = v['Powerplant']['BaselineSFC']
 
@@ -84,7 +89,7 @@ class Vehicle:
       HarrisScullyPrice = 628.707 * (v['Main Rotor']['NumBlades']*v['Main Rotor']['NumRotors'])**0.2045 * v['Weights']['EmptyWeight']**0.4854 * v['Powerplant']['MRP']**0.5843
       v['Economics']['HarrisScullyPrice'] = HarrisScullyPrice
 
-  def scaleWeights(self):
+  def scaleWeights(self): # AHS change how scale weights are done
       v = self.vconfig
       w = v['Weights']  # shorthand
 
@@ -359,14 +364,14 @@ class Vehicle:
       v = self.vconfig
       v['Condition']['Weight'] = self.GW
       speeds = [0]
-      powersSL = []
+      powersSL = []   #AHS what is this
       parasite = []
       profile = []
       induced = []
       AdvRatio = []
       CtSigma = []
       avgInflow = []
-      coll = []
+      coll = []  #AHS get rid of collective terms etc...
       beta_0 = []
       theta_1c = []
       theta_1s = []
@@ -376,12 +381,12 @@ class Vehicle:
       v['Condition']['Density'] = self.density(altitude,v['Engine Scaling']['DeltaTemp']) # SL
       v['Condition']['Speed'] = speeds[0]
       v['Condition']['ClimbRate'] = 0.0
-      (totalPower, Pinduced, Pprofile, Pparasite,TotalThrust,TrimData) = self.powerReq()
+      (totalPower, Pinduced, Pprofile, Pparasite,TotalThrust,TrimData) = self.powerReq()  #AHS change power req output..no trim
       powersSL.append(totalPower)
       induced.append(Pinduced)
       profile.append(Pprofile)
       parasite.append(Pparasite)
-      avgInflow.append(TrimData[0])
+      avgInflow.append(TrimData[0])  # AHS lets get rid of all trim crap
       coll.append(TrimData[1])
       beta_0.append(TrimData[2])
       theta_1c.append(TrimData[3])
@@ -389,12 +394,12 @@ class Vehicle:
       alpha_tpp.append(TrimData[5])
       TotThrust.append(TotalThrust)
       # Do the altitude sweep
-      while ((not math.isnan(powersSL[-1])) and (not powersSL[-1]<0)) and speeds[-1]<100:  #change STEVE
+      while ((not math.isnan(powersSL[-1])) and (not powersSL[-1]<0)) and speeds[-1]<100:  #change AHS STEVE
           
           speed = speeds[-1] + v['Simulation']['PowerCurveResolution']
           v['Condition']['Speed'] = speed
           v['Condition']['Density'] = self.density(altitude,v['Engine Scaling']['DeltaTemp']) # SL
-          (totalPower, Pinduced, Pprofile, Pparasite, TotalThrust,TrimData) = self.powerReq()
+          (totalPower, Pinduced, Pprofile, Pparasite, TotalThrust,TrimData) = self.powerReq()  #AHS change get rid of trim
           powersSL.append(totalPower) # float('nan')
           induced.append(Pinduced)
           profile.append(Pprofile)
@@ -403,7 +408,7 @@ class Vehicle:
           AdvRatio.append(speed/(v['Main Rotor']['TipSpeed']/1.6878098))
           CtSigma.append(TotalThrust/(v['Condition']['Density']*v['Main Rotor']['DiskArea']*(v['Main Rotor']['Omega']*v['Main Rotor']['Radius'])**2.0*v['Main Rotor']['Solidity']))
           TotThrust.append(TotalThrust)   
-          avgInflow.append(TrimData[0])
+          avgInflow.append(TrimData[0])   #AHS change get rid of trim
           coll.append(TrimData[1])
           beta_0.append(TrimData[2])
           theta_1c.append(TrimData[3])
@@ -437,7 +442,7 @@ class Vehicle:
       v['Condition']['ClimbRate'] = 0.
       while steps<v['Simulation']['MaxSteps'] and (HCmax-HCmin)>v['Simulation']['HoverCeilingTolerance'] :
           v['Condition']['Density'] = self.density(altitude, v['Engine Scaling']['DeltaTemp'])
-          (powerRequired, Pinduced, Pprofile, Pparasite,_,_) = self.powerReq()
+          (powerRequired, Pinduced, Pprofile, Pparasite,_,_) = self.powerReq()  #AHS maybe change to this type of format where trim is neglected
           powerAvailable = self.powerAvailable(altitude)
           if self.debug: pvar(locals(), ('HCmin', 'altitude', 'HCmax', 'powerRequired', 'powerAvailable'))
           if math.isnan(powerRequired) or powerRequired<0 or powerRequired>powerAvailable:
@@ -469,7 +474,7 @@ class Vehicle:
   def SFC(self, power):
       """Returns SFC at a given output power."""
       v = self.vconfig
-      sfc = -0.00001495*power + v['Powerplant']['SFC'] - v['Powerplant']['MCP']*(-0.00001495)
+      sfc = -0.00001495*power + v['Powerplant']['SFC'] - v['Powerplant']['MCP']*(-0.00001495)   #AHS change sfc equation
       return sfc
       
   def speedOfSound(self, density):
@@ -578,10 +583,10 @@ class Vehicle:
 
       power = max(hoverpower, ceilingpower, cruisepower)
       gamma = power/ v['Weights']['NumEngines'] / self.vconfig['Powerplant']['BaselineMRP']
-      sfc = (-0.00932*gamma**2+0.865*gamma+0.445)/(gamma+0.301)*v['Powerplant']['BaselineSFC']
+      sfc = (-0.00932*gamma**2+0.865*gamma+0.445)/(gamma+0.301)*v['Powerplant']['BaselineSFC']  #AHS change this?
       
       # outputs
-      v['Powerplant']['MRP'] = power * 1.3
+      v['Powerplant']['MRP'] = power * 1.3  #AHS is this valid?
       v['Powerplant']['MCP'] = power
       v['Powerplant']['SFC'] = sfc * (1-v['Powerplant']['SFCTechImprovementFactor']) # baseline SFC per engine
 
@@ -594,7 +599,7 @@ class Vehicle:
 
   def powerReq(self):
       v = self.vconfig
-      if v['Main Rotor']['NumRotors'] > 1:
+      if v['Main Rotor']['NumRotors'] > 1: #AHS what is this?
           advancingLiftBalance = .9
       else:
           advancingLiftBalance = .6
@@ -610,15 +615,15 @@ class Vehicle:
       VerticalLift_perRotor = VerticalLift_rotors / v['Main Rotor']['NumRotors']
  
       # proportion out forward thrust between the aux prop and the rotors
-      BodyDrag = .5 * Density * V**2 * v['Body']['FlatPlateDrag']
+      BodyDrag = .5 * Density * V**2 * v['Body']['FlatPlateDrag'] # AHS change our body drag equation for wing?
       TotalDrag = BodyDrag
       ForwardThrust = TotalDrag
 
       ForwardThrust_rotors = ForwardThrust
-      ForwardThrust_perRotor = ForwardThrust_rotors / v['Main Rotor']['NumRotors']
+      ForwardThrust_perRotor = ForwardThrust_rotors / v['Main Rotor']['NumRotors'] # AHS Change this for forward thrust differnt num of rotors
       if self.debug: pvar(locals(), ('ForwardThrust_perRotor', 'VerticalLift_perRotor'))
 
-      # calculate rotor power
+      # calculate rotor power   #AHS no trim!!! -> get rid of this entire function->replace with simpler?
       (singleRotorPower, Pinduced, Pprofile, TrimData) = self.rotor.trim(tolerancePct=v['Simulation']['TrimAccuracyPercentage'], \
                         V=V, rho=Density, speedOfSound=self.speedOfSound(Density), Fx=ForwardThrust_perRotor, \
                         Fz=VerticalLift_perRotor, maxSteps=v['Simulation']['MaxSteps'], \
@@ -627,7 +632,7 @@ class Vehicle:
       if singleRotorPower>0: singleRotorPower = singleRotorPower / (1-v['Body']['DownwashFactor']) * v['Main Rotor']['Kint']  # REMOVEME # fix Kint?
 #      print singleRotorPower      
       TotalThrust = np.sqrt(ForwardThrust_rotors**2+VerticalLift_rotors**2)
-      # Calculate anti torque power
+      # Calculate anti torque power # AHS get rid of this anti torque?
       if (not math.isnan(singleRotorPower)) and (singleRotorPower>0) and v['Main Rotor']['NumRotors']==1:
           PAntitorque = self.findAntiTorquePower(singleRotorPower,Density,V)
       else:
@@ -646,7 +651,7 @@ class Vehicle:
 
       Pparasite = TotalDrag*V/550.0
       alpha_tpp = math.atan(ForwardThrust_perRotor/VerticalLift_perRotor)
-      TrimData.append(alpha_tpp*180/math.pi)
+      TrimData.append(alpha_tpp*180/math.pi) # AHS get rid of this
       print 'Total power: %f ,   Pind:%f  , Pprof:%f , Ppara:%f, Thrust:%f' % (totalPower,Pinduced,Pprofile,Pparasite,TotalThrust)
       return (totalPower, Pinduced, Pprofile, Pparasite, TotalThrust, TrimData)
       
