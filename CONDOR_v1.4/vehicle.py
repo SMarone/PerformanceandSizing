@@ -69,7 +69,7 @@ class Vehicle:
       self.rotor = Rotor(self.blade, psiSegments=v['Simulation']['numBladeElementSegments'], Vtip=v['Main Rotor']['TipSpeed'], radius=v['Main Rotor']['Radius'], numblades=v['Main Rotor']['NumBlades'],Master = self.Master)
     
       # get rid of antitorque  AHS
-      self.sizeAntiTorque()      
+  #    self.sizeAntiTorque()      
       if self.Master['Code Selection']['rf_Run']: # When using RF method scales engine
         self.scaleEngine()
       else: # When calculating performance of vehicle uses input values
@@ -167,7 +167,7 @@ class Vehicle:
               else:
                   m[seg]['StartAltitude'] = m[seg]['Altitude']
                   
-          m[seg]['95_powerAvail'] = self.powerAvailable(m[seg]['Altitude'])*.95
+          m[seg]['95_powerAvail'] = v['Powerplant']['BaselineMCP']  #self.powerAvailable(m[seg]['Altitude'])*.95   #AHS this lined is messed up!!!
 
 # Set In-Ground-Effect Thrust Multiplyer (assumes heightAboveGround/RotorRadius = .75) 
 # The model used is Explained on Pgs 258-260 Leishman
@@ -191,7 +191,7 @@ class Vehicle:
       m = self.mconfig
       v = self.vconfig
       v['Sizing Results']['MisSize'] = float('nan')
-      if v['Weights']['EmptyWeightFraction']>1 or v['Weights']['MaxAvailableFuelWeight']<0 or not v['Sizing Results']['CouldTrim']:      
+      if v['Weights']['EmptyWeightFraction']>1 or v['Weights']['MaxAvailableFuelWeight']<0 :    #AHS Change ...get rid of trim  or not v['Sizing Results']['CouldTrim']
           return
       elapsed = 0 # elapsed time since mission start
       fuelAvailable = self.GW - v['Weights']['EmptyWeight'] - v['Weights']['UsefulLoad'] # total fuel weight available, pounds
@@ -306,6 +306,7 @@ class Vehicle:
               totalRange += disTrav
               self.GW = w
           if power > m[seg]['95_powerAvail']: m[seg]['Warning Message'] = 'Warning: More Power Required than available'
+        #  print 'STEVEEEEEEE POWERRRRRRRR  %f' % power
           m[seg]['Time']= segmentTime
           m[seg]['EndTime'] = elapsed
           m[seg]['Segment Fuel Used'] = segmentFuel
@@ -381,17 +382,17 @@ class Vehicle:
       v['Condition']['Density'] = self.density(altitude,v['Engine Scaling']['DeltaTemp']) # SL
       v['Condition']['Speed'] = speeds[0]
       v['Condition']['ClimbRate'] = 0.0
-      (totalPower, Pinduced, Pprofile, Pparasite,TotalThrust,TrimData) = self.powerReq()  #AHS change power req output..no trim
+      (totalPower, Pinduced, Pprofile, Pparasite,TotalThrust,_) = self.powerReq()  #AHS change power req output..no trim->got rid of TrimData
       powersSL.append(totalPower)
       induced.append(Pinduced)
       profile.append(Pprofile)
       parasite.append(Pparasite)
-      avgInflow.append(TrimData[0])  # AHS lets get rid of all trim crap
-      coll.append(TrimData[1])
-      beta_0.append(TrimData[2])
-      theta_1c.append(TrimData[3])
-      theta_1s.append(TrimData[4])
-      alpha_tpp.append(TrimData[5])
+      #avgInflow.append(TrimData[0])  # AHS lets get rid of all trim crap
+      #coll.append(TrimData[1])
+      #beta_0.append(TrimData[2])
+      #theta_1c.append(TrimData[3])
+      #theta_1s.append(TrimData[4])
+      #alpha_tpp.append(TrimData[5])
       TotThrust.append(TotalThrust)
       # Do the altitude sweep
       while ((not math.isnan(powersSL[-1])) and (not powersSL[-1]<0)) and speeds[-1]<100:  #change AHS STEVE
@@ -408,12 +409,12 @@ class Vehicle:
           AdvRatio.append(speed/(v['Main Rotor']['TipSpeed']/1.6878098))
           CtSigma.append(TotalThrust/(v['Condition']['Density']*v['Main Rotor']['DiskArea']*(v['Main Rotor']['Omega']*v['Main Rotor']['Radius'])**2.0*v['Main Rotor']['Solidity']))
           TotThrust.append(TotalThrust)   
-          avgInflow.append(TrimData[0])   #AHS change get rid of trim
-          coll.append(TrimData[1])
-          beta_0.append(TrimData[2])
-          theta_1c.append(TrimData[3])
-          theta_1s.append(TrimData[4])
-          alpha_tpp.append(TrimData[5])
+        #  avgInflow.append(TrimData[0])   #AHS change get rid of trim
+        #  coll.append(TrimData[1])
+        #  beta_0.append(TrimData[2])
+        #  theta_1c.append(TrimData[3])
+        #  theta_1s.append(TrimData[4])
+        #  alpha_tpp.append(TrimData[5])
 #          print speed        
           if self.debug: print speed
       v['Power Curve']['Speeds'] = speeds
@@ -424,12 +425,12 @@ class Vehicle:
       v['Power Curve']['Ct Sigma'] = CtSigma
       v['Power Curve']['AdvRatio'] = AdvRatio
       v['Power Curve']['avgInflow'] = avgInflow
-      v['Power Curve']['coll'] = coll
-      v['Power Curve']['beta_0'] = beta_0
-      v['Power Curve']['theta_1c'] = theta_1c
-      v['Power Curve']['theta_1s'] = theta_1s
+      v['Power Curve']['coll'] = 0#coll
+      v['Power Curve']['beta_0'] =0 #beta_0
+      v['Power Curve']['theta_1c'] =0 #theta_1c
+      v['Power Curve']['theta_1s'] = 0#theta_1s
       v['Power Curve']['TotThrust'] = TotThrust
-      v['Power Curve']['alpha_tpp'] = alpha_tpp
+      v['Power Curve']['alpha_tpp'] = 0#alpha_tpp
       
   def findHoverCeiling(self):
       v = self.vconfig
@@ -463,12 +464,12 @@ class Vehicle:
 
   def powerAvailable(self, altitude):
       v = self.vconfig
-      powerAv = v['Powerplant']['MCP'] * self.density(altitude,v['Engine Scaling']['DeltaTemp']) / self.density(0,0)
+      powerAv = v['Powerplant']['MCP'] #* self.density(altitude,v['Engine Scaling']['DeltaTemp']) / self.density(0,0)  #AHS
       return powerAv
       
   def MRPAvailable(self, altitude):
       v = self.vconfig
-      powerAv = v['Powerplant']['MRP'] * self.density(altitude,v['Engine Scaling']['DeltaTemp']) / self.density(0,0)
+      powerAv = v['Powerplant']['MRP'] #* self.density(altitude,v['Engine Scaling']['DeltaTemp']) / self.density(0,0)  #AHS
       return powerAv
       
   def SFC(self, power):
@@ -623,8 +624,8 @@ class Vehicle:
       ForwardThrust_perRotor = ForwardThrust_rotors / v['Main Rotor']['NumRotors'] # AHS Change this for forward thrust differnt num of rotors
       if self.debug: pvar(locals(), ('ForwardThrust_perRotor', 'VerticalLift_perRotor'))
 
-      # calculate rotor power   #AHS no trim!!! -> get rid of this entire function->replace with simpler?
-      (singleRotorPower, Pinduced, Pprofile, TrimData) = self.rotor.trim(tolerancePct=v['Simulation']['TrimAccuracyPercentage'], \
+      # calculate rotor power   #AHS no trim!!! -> get rid of this entire function->replace with simpler? ->got rid of TrimData
+      (singleRotorPower, Pinduced, Pprofile, _) = self.rotor.trim(tolerancePct=v['Simulation']['TrimAccuracyPercentage'], \
                         V=V, rho=Density, speedOfSound=self.speedOfSound(Density), Fx=ForwardThrust_perRotor, \
                         Fz=VerticalLift_perRotor, maxSteps=v['Simulation']['MaxSteps'], \
                         advancingLiftBalance=advancingLiftBalance, returnAll=True, Vcl=ClimbRate)
@@ -633,27 +634,27 @@ class Vehicle:
 #      print singleRotorPower      
       TotalThrust = np.sqrt(ForwardThrust_rotors**2+VerticalLift_rotors**2)
       # Calculate anti torque power # AHS get rid of this anti torque?
-      if (not math.isnan(singleRotorPower)) and (singleRotorPower>0) and v['Main Rotor']['NumRotors']==1:
-          PAntitorque = self.findAntiTorquePower(singleRotorPower,Density,V)
-      else:
-          PAntitorque = 0#float('nan')
+    #  if (not math.isnan(singleRotorPower)) and (singleRotorPower>0) and v['Main Rotor']['NumRotors']==1:
+    #      PAntitorque = self.findAntiTorquePower(singleRotorPower,Density,V)
+    #  else:
+    #      PAntitorque = 0#float('nan')
       
            
       if self.debug: pvar(locals(), ('BodyDrag','VerticalLift_perRotor', 'singleRotorPower'))
       # find total power
       if singleRotorPower > 0:
         totalPower = singleRotorPower*v['Main Rotor']['NumRotors'] +TotalDrag*V/550.0 # Is this right?  should the parasite power be just added on directly like this?
-        totalPower = (totalPower + PAntitorque) / (1-v['Powerplant']['TransmissionEfficiency'])
+        totalPower = (totalPower + 0) / (1-v['Powerplant']['TransmissionEfficiency']) #got rid of PAntitorque AHS
       else:
         totalPower = singleRotorPower
       
       v['Performance']['MaxBladeLoadingSeen'] = max(v['Performance']['MaxBladeLoadingSeen'], math.sqrt(ForwardThrust_perRotor**2+VerticalLift_perRotor**2)/(Density*v['Main Rotor']['DiskArea']*self.rotor.Vtip**2))
 
       Pparasite = TotalDrag*V/550.0
-      alpha_tpp = math.atan(ForwardThrust_perRotor/VerticalLift_perRotor)
-      TrimData.append(alpha_tpp*180/math.pi) # AHS get rid of this
+    #  alpha_tpp = math.atan(ForwardThrust_perRotor/VerticalLift_perRotor)
+    #  TrimData.append(alpha_tpp*180/math.pi) # AHS get rid of this
       print 'Total power: %f ,   Pind:%f  , Pprof:%f , Ppara:%f, Thrust:%f' % (totalPower,Pinduced,Pprofile,Pparasite,TotalThrust)
-      return (totalPower, Pinduced, Pprofile, Pparasite, TotalThrust, TrimData)
+      return (totalPower, Pinduced, Pprofile, Pparasite, TotalThrust, _) #AHS ditch TrimData
       
   def findAntiTorquePower(self,Tpower,density,Vinf):
       """AntiTorque Power is calculated using Momentum Theory forward flight corrections """
