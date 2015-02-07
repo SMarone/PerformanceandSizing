@@ -1,0 +1,33 @@
+﻿Vehicle.py – cost completely off
+
+weight functions also in vehicle.py
+
+BEMT.py is main run for the mission files
+
+Sort through code, lots of excessive 
+
+can do multiple rotors, in BEMT.py method powerReq
+
+in method Antitorque on BEMT – do not need with even # of rotors so insert “if”
+
+engine scaling very arbitrary
+
+climb rate found by extra power after at endurance speed
+
+sfc changes with power required
+
+NEED to add a wing input after weights:
+
+[Wing]
+at certain speed, how much lift would the wing take? - will have variable from angle of attack
+remove that lift from rotors
+
+for four rotors:
+	should assume to split torque evenly
+	remove antitorque
+	
+
+ALWAYS ASSUME CG under rotor – may need to modify with a hinge offset input but may be hard at this level
+
+
+
