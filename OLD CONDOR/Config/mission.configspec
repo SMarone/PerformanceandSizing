@@ -1,0 +1,8 @@
+[__many__]
+Distance = float()
+Speed = float()
+Altitude = float()
+DeltaTemp = float()
+CrewWeight = float()
+PayloadWeight = float()
+MiscWeight = float()

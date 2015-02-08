@@ -1,0 +1,93 @@
+[OEC]
+BaselineRange = float()
+BaselineHoverCeiling = float()
+BaselineSpeed = float()
+BaselineCost = float()
+BaselinePayload = float()
+
+[Main Rotor]
+NumRotors = integer()
+DiskLoading = float()
+NumBlades = integer()
+Solidity = float()
+TipSpeed = float()
+SlowedTipSpeed = float()
+Kint = float()
+Kov = float()
+AirfoilFile = string()
+DragDivergenceMachNumber = float()
+AverageChord = float()
+TaperRatio = float()
+TipTwist = float()
+RootCutout = float()
+
+[Weights]
+BaselineGrossWeight = float()
+BaselineEmptyWeightFraction = float()
+BaselineEmptyWeight = float()
+NumEngines = float()
+BaselineWeightPerEngine = float()
+BaselineDriveSystemWeightScalingFactor = float()
+StructureWeightTechImprovementFactor = float()
+EngineWeightTechImprovementFactor = float()
+DriveSystemWeightTechImprovementFactor = float()
+WingWeightTechImprovementFactor = float()
+UsefulLoad = float()
+
+[Wing]
+SpanRadiusRatio = float()
+WingChord = float()
+MaxSpeed = float()
+WingClMax = float()
+WingCD0 = float()
+OswaldEfficiency = float()
+MaxWingLoadProportion = float()
+
+[Aux Propulsion]
+NumAuxProps = integer()
+PropulsionFactor = float()
+Radius = float()
+NumBlades = integer()
+Solidity = float()
+TipSpeed = float()
+Kint = float()
+Kov = float()
+AirfoilFile = string()
+DragDivergenceMachNumber = float()
+AverageChord = float()
+TaperRatio = float()
+TipTwist = float()
+RootCutout = float()
+
+[Powerplant]
+BaselineMRP = float()
+BaselineSFC = float()
+SFCTechImprovementFactor = float()
+TransmissionEfficiency = float()
+
+[Body]
+DragTechImprovementFactor = float()
+DownwashFactor = float()
+
+[Antitorque]
+AntitorquePowerFactor = float()
+
+[Simulation]
+TimeStep = float()
+MaxSteps = float()
+StartGW = float()
+GWMin = float()
+GWmax = float()
+GWTolerance = float()
+TrimAccuracyPercentage = float()
+numBladeElementSegments = integer()
+PowerCurveResolution = float()
+HoverCeilingMax = float()
+HoverCeilingMin = float()
+HoverCeilingTolerance = float()
+
+[Engine Scaling]
+RequiredHoverHeight = float()
+
+[Condition]
+CruiseAltitude = float()
