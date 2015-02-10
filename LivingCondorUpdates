@@ -1,0 +1,5 @@
+2-10-15  SMarone
+I put a wing object inside that calculates the Drag and Lift per segment.  May also add in flat plate drag for power required but I really would like to better understand it.  Also can not implement wing much more until forward flight section is set.
+
+
+
