@@ -244,6 +244,9 @@ class Vehicle:
                                       # This is an estimate from graphs in Sankar's Notes for vortex ring state. also pg 88 Leishman
                                       # This graph is not a great estimate however because it assumes vertical climb and descent and compares
                                       # power to hover power not level flight power. As soon as a better model is found it will be used.
+
+                      #INSERT FORWARD FLIGHT SEGMENT AROUND HERE
+
                   elif m[seg]['StartAltitude']==FinalAlt:
                       (power, Pinduced, Pprofile, Pparasite,_,_) = self.powerReq() # Find resulting fuel consumed
                       if self.debugFine: "if it enters in here the input has a mistake, the code will run slower but should run without mistakes"
@@ -471,7 +474,24 @@ class Vehicle:
       v = self.vconfig
       powerAv = v['Powerplant']['MRP'] #* self.density(altitude,v['Engine Scaling']['DeltaTemp']) / self.density(0,0)  #AHS
       return powerAv
-      
+
+  def WingEffects(self, seg):
+      if Cl > .0001:
+          v = self.vconfig
+          m = self.mconfig
+          e = 0.85             #Oswald Efficiency
+          b = v['Wing']['length']   
+          c = v['Wing']['chord']
+          Cl = v['Wing']['Cl']
+          Rho =  self.density(m[seg]['Altititude'],m[seg]['DeltaTemp'])
+          Cdi = Cl**2/(math.pi*(b/c)*e) 
+          Drag = (m[seg]['Speed']*1.68781)**2 * Rho * 0.5 * b * c * Cdi #Induced Drag lbs
+          Lift = (m[seg]['Speed']*1.68781)**2 * Rho * 0.5 * b * c * Cl  #Additional Lift lbs
+      else:
+          Drag = 0
+          Lift = 0
+      return (Drag, Lift)
+    
   def SFC(self, power):
       """Returns SFC at a given output power."""
       v = self.vconfig

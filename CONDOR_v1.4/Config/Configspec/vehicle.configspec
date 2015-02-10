@@ -76,6 +76,11 @@ CT_SigmaTolerance = float()
 CT_SigmaCurveResolution = float()
 Curve_Altitude = float()
 
+[Wing]
+Cl = float()
+chord = float()
+length = float()
+
 [Engine Scaling]
 RequiredHoverHeight = float()
 DeltaTemp = float()
