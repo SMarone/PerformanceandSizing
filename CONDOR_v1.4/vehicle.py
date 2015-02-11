@@ -238,7 +238,7 @@ class Vehicle:
                   if m[seg]['StartAltitude']>FinalAlt: # Descent Condition
                       TempStore = v['Condition']['ClimbRate']
                       v['Condition']['ClimbRate'] = 0.0
-                      (power, Pinduced, Pprofile, Pparasite,_,_) = self.powerReq() # Find resulting fuel consumed
+                      (power, Pinduced, Pprofile, Pparasite,_) = self.powerReq() # Find resulting fuel consumed
                       v['Condition']['ClimbRate'] = TempStore
                       power *= .75 # Use 75% of level flight power in descent segment.
                                       # This is an estimate from graphs in Sankar's Notes for vortex ring state. also pg 88 Leishman
@@ -248,10 +248,10 @@ class Vehicle:
                       #INSERT FORWARD FLIGHT SEGMENT AROUND HERE
 
                   elif m[seg]['StartAltitude']==FinalAlt:
-                      (power, Pinduced, Pprofile, Pparasite,_,_) = self.powerReq() # Find resulting fuel consumed
+                      (power, Pinduced, Pprofile, Pparasite,_) = self.powerReq() # Find resulting fuel consumed
                       if self.debugFine: "if it enters in here the input has a mistake, the code will run slower but should run without mistakes"
                   else:
-                      (power, Pinduced, Pprofile, Pparasite,_,_) = self.powerReq()
+                      (power, Pinduced, Pprofile, Pparasite,_) = self.powerReq()
 #                      power = m[seg]['95_powerAvail'] # use 95% of available power to climb
                   if math.isnan(power) or power < 0:
                       self.recordTrimFailure()
@@ -293,7 +293,7 @@ class Vehicle:
                       if self.debugFine: print 'Last segment bit, duration %s minutes' % duration
                   disTrav += stepDis
                   v['Condition']['Weight'] = w / m[seg]['IGE Multiplier']
-                  (power, Pinduced, Pprofile, Pparasite,_,_) = self.powerReq()
+                  (power, Pinduced, Pprofile, Pparasite,_) = self.powerReq()
                   if math.isnan(power) or power < 0:
                       self.recordTrimFailure()
                       print "steve power failure 2\n"
@@ -341,13 +341,13 @@ class Vehicle:
       v['Condition']['Speed'] = speed *1.687 #ft/sec
       v['Condition']['ClimbRate'] = 0.0
       
-      (totalPower, Pinduced, Pprofile, Pparasite,_,_) = self.powerReq()
+      (totalPower, Pinduced, Pprofile, Pparasite,_) = self.powerReq()
       powers.append(totalPower)
       while ((not math.isnan(powers[-1])) or powers[-1]>0) and altitudes[-1] < 30000:
           altitudes.append(altitudes[-1] + 500)
           v['Condition']['Density'] = self.density(altitudes[-1],v['Engine Scaling']['DeltaTemp'])
           print altitudes[-1], v['Condition']['Density']
-          (totalPower, Pinduced, Pprofile, Pparasite,_,_) = self.powerReq()
+          (totalPower, Pinduced, Pprofile, Pparasite,_) = self.powerReq()
           powers.append(totalPower)
       print "Altitudes:    ", altitudes
       print "Powers:    ", powers
@@ -385,7 +385,7 @@ class Vehicle:
       v['Condition']['Density'] = self.density(altitude,v['Engine Scaling']['DeltaTemp']) # SL
       v['Condition']['Speed'] = speeds[0]
       v['Condition']['ClimbRate'] = 0.0
-      (totalPower, Pinduced, Pprofile, Pparasite,TotalThrust,_) = self.powerReq()  #AHS change power req output..no trim->got rid of TrimData
+      (totalPower, Pinduced, Pprofile, Pparasite,TotalThrust) = self.powerReq()  #AHS change power req output..no trim->got rid of TrimData
       powersSL.append(totalPower)
       induced.append(Pinduced)
       profile.append(Pprofile)
@@ -403,7 +403,7 @@ class Vehicle:
           speed = speeds[-1] + v['Simulation']['PowerCurveResolution']
           v['Condition']['Speed'] = speed
           v['Condition']['Density'] = self.density(altitude,v['Engine Scaling']['DeltaTemp']) # SL
-          (totalPower, Pinduced, Pprofile, Pparasite, TotalThrust,TrimData) = self.powerReq()  #AHS change get rid of trim
+          (totalPower, Pinduced, Pprofile, Pparasite, TotalThrust) = self.powerReq()  #AHS change get rid of trim
           powersSL.append(totalPower) # float('nan')
           induced.append(Pinduced)
           profile.append(Pprofile)
@@ -446,7 +446,7 @@ class Vehicle:
       v['Condition']['ClimbRate'] = 0.
       while steps<v['Simulation']['MaxSteps'] and (HCmax-HCmin)>v['Simulation']['HoverCeilingTolerance'] :
           v['Condition']['Density'] = self.density(altitude, v['Engine Scaling']['DeltaTemp'])
-          (powerRequired, Pinduced, Pprofile, Pparasite,_,_) = self.powerReq()  #AHS maybe change to this type of format where trim is neglected
+          (powerRequired, Pinduced, Pprofile, Pparasite,_) = self.powerReq()  #AHS maybe change to this type of format where trim is neglected
           powerAvailable = self.powerAvailable(altitude)
           if self.debug: pvar(locals(), ('HCmin', 'altitude', 'HCmax', 'powerRequired', 'powerAvailable'))
           if math.isnan(powerRequired) or powerRequired<0 or powerRequired>powerAvailable:
@@ -585,7 +585,7 @@ class Vehicle:
       v['Condition']['Density'] = self.density(altitude, DeltaTemp)
       v['Condition']['Speed'] = 0 # hover
       v['Condition']['ClimbRate'] = 0.
-      hoverpower, Pinduced, Pprofile, Pparasite,_,_ = self.powerReq()
+      hoverpower, Pinduced, Pprofile, Pparasite, _ = self.powerReq()
       if math.isnan(hoverpower) or hoverpower<0:
           self.recordTrimFailure()
           print "steve hoverpower failure\n"
@@ -645,10 +645,11 @@ class Vehicle:
       if self.debug: pvar(locals(), ('ForwardThrust_perRotor', 'VerticalLift_perRotor'))
 
       # calculate rotor power   #AHS no trim!!! -> get rid of this entire function->replace with simpler? ->got rid of TrimData
-      (singleRotorPower, Pinduced, Pprofile, _) = self.rotor.trim(tolerancePct=v['Simulation']['TrimAccuracyPercentage'], \
-                        V=V, rho=Density, speedOfSound=self.speedOfSound(Density), Fx=ForwardThrust_perRotor, \
-                        Fz=VerticalLift_perRotor, maxSteps=v['Simulation']['MaxSteps'], \
-                        advancingLiftBalance=advancingLiftBalance, returnAll=True, Vcl=ClimbRate)
+      #(singleRotorPower, Pinduced, Pprofile) = self.rotor.trim(tolerancePct=v['Simulation']['TrimAccuracyPercentage'], \
+      #                  V=V, rho=Density, speedOfSound=self.speedOfSound(Density), Fx=ForwardThrust_perRotor, \
+      #                  Fz=VerticalLift_perRotor, maxSteps=v['Simulation']['MaxSteps'], \
+      #                  advancingLiftBalance=advancingLiftBalance, returnAll=True, Vcl=ClimbRate)
+      (singleRotorPower, Pinduced, Pprofile) = self.rotor.MomentumHover(rho=Density, Fz=VerticalLift_perRotor)
       
       if singleRotorPower>0: singleRotorPower = singleRotorPower / (1-v['Body']['DownwashFactor']) * v['Main Rotor']['Kint']  # REMOVEME # fix Kint?
 #      print singleRotorPower      
@@ -674,7 +675,7 @@ class Vehicle:
     #  alpha_tpp = math.atan(ForwardThrust_perRotor/VerticalLift_perRotor)
     #  TrimData.append(alpha_tpp*180/math.pi) # AHS get rid of this
       print 'Total power: %f ,   Pind:%f  , Pprof:%f , Ppara:%f, Thrust:%f' % (totalPower,Pinduced,Pprofile,Pparasite,TotalThrust)
-      return (totalPower, Pinduced, Pprofile, Pparasite, TotalThrust, _) #AHS ditch TrimData
+      return (totalPower, Pinduced, Pprofile, Pparasite, TotalThrust) #AHS ditch TrimData
       
   def findAntiTorquePower(self,Tpower,density,Vinf):
       """AntiTorque Power is calculated using Momentum Theory forward flight corrections """

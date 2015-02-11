@@ -225,7 +225,13 @@ class Rotor:
         powers = [0, 0 ,0]
         powers[0] = self.trim(tolerancePct, V, speedOfSound, rho, Fx, Fz, maxSteps, advancingLiftBalance=liftBalanceMin)
         powers[2] = self.trim(tolerancePct, V, speedOfSound, rho, Fx, Fz, maxSteps, advancingLiftBalance=liftBalanceMax)
+    def MomentumHover(self, rho, Fz):
 
+        R = self.R
+        P_total =  (Fz**3/(2*rho*R**2*3.14) )**0.5 /550
+        Pprofile = 0
+        Pinduced = P_total
+        return (P_total, Pinduced, Pprofile)
     def trim(self, tolerancePct, V, speedOfSound, rho, Fx, Fz, maxSteps, advancingLiftBalance=.5, returnAll=False, Vcl=0.0):
         """Attempts to trim the rotor at given conditions.  Will re-use trim variables from last time if possible.
         Note that "drag" and "weight" in the variables are really just the veritcal and horizontal components of

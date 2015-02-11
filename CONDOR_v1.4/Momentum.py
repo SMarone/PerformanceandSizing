@@ -225,7 +225,7 @@ class Rotor:
         powers = [0, 0 ,0]
         powers[0] = self.trim(tolerancePct, V, speedOfSound, rho, Fx, Fz, maxSteps, advancingLiftBalance=liftBalanceMin)
         powers[2] = self.trim(tolerancePct, V, speedOfSound, rho, Fx, Fz, maxSteps, advancingLiftBalance=liftBalanceMax)
-    def MomentumHover(self, tolerancePct, V, speedOfSound, rho, Fx, Fz, maxSteps, advancingLiftBalance=.5, returnAll=False, Vcl=0.0):
+    def MomentumHoverx(self, tolerancePct, V, speedOfSound, rho, Fx, Fz, maxSteps, advancingLiftBalance=.5, returnAll=False, Vcl=0.0):
 
         R = self.R
         P_total =  math.sqrt(Fz**3/(2*rho*R**2*math.pi) )
